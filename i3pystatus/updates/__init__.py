@@ -1,5 +1,5 @@
 from i3pystatus import SettingsBase, IntervalModule, formatp
-from i3pystatus.core.util import internet
+from i3pystatus.core.util import internet, require
 
 
 class Backend(SettingsBase):
@@ -42,7 +42,7 @@ class Updates(IntervalModule):
 
     settings = (
         ("backends", "Required list of backends used to check for updates."),
-        ("format", "String shown when updates are availible. "
+        ("format", "String shown when updates are available. "
          "May contain formatters."),
         ("format_no_updates", "String that is shown if no updates are available."
          " If not set the module will be hidden if no updates are available."),
@@ -63,13 +63,9 @@ class Updates(IntervalModule):
     def init(self):
         if not isinstance(self.backends, list):
             self.backends = [self.backends]
-        return
 
+    @require(internet)
     def run(self):
-        if not internet():
-            self.logger.info("Updates: No internet connection.")
-            return
-
         updates_count = 0
         for backend in self.backends:
             updates_count += backend.updates
@@ -88,4 +84,3 @@ class Updates(IntervalModule):
             "full_text": formatp(self.format, **fdict).strip(),
             "color": self.color,
         }
-        return

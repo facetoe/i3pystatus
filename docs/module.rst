@@ -8,14 +8,17 @@ updates it's info periodically, like checking for a network link or
 displaying the status of some service, then we have prepared common
 tools for this which make this even easier:
 
-- Common base classes: :py:class:`i3pystatus.core.modules.Module` for
-  everything and :py:class:`i3pystatus.core.modules.IntervalModule`
-  specifically for the aforementioned usecase of updating stuff
-  periodically.
+- Common base classes: :py:class:`.Module` for everything and
+  :py:class:`.IntervalModule` specifically for the aforementioned
+  usecase of updating stuff periodically.
 - Settings (already built into above classes) allow you to easily
   specify user-modifiable attributes of your class for configuration.
 
+<<<<<<< HEAD
   See :py:class:`i3pystatus.core.settings.SettingsBase` for details.
+=======
+  See :py:class:`.SettingsBase` for details.
+>>>>>>> 317d96b1769377b72465d8f3527fea5c55fc99bb
 - For modules that require credentials, it is recommended to add a
   keyring_backend setting to allow users to specify their own backends
   for retrieving sensitive credentials. 
@@ -36,7 +39,11 @@ reStructuredText description for your module in the README file.
 
 .. seealso::
 
+<<<<<<< HEAD
     :py:class:`i3pystatus.core.settings.SettingsBase` for a detailed description of the settings system
+=======
+    :py:class:`.SettingsBase` for a detailed description of the settings system
+>>>>>>> 317d96b1769377b72465d8f3527fea5c55fc99bb
 
 Handling Dependencies
 ---------------------
@@ -52,7 +59,13 @@ The wording usually used goes like this:
 
 To allow automatic generation of the docs without having all
 requirements of every module installed mocks are used. To make this
+<<<<<<< HEAD
 work simply add all modules you import to the ``MOCK_MODULES`` list in
 ``docs/conf.py``. This needs to be the actual name of the imported
+=======
+work simply add all modules of dependencies (so no standard library modules
+or modules provided by i3pystatus) you import to the ``MOCK_MODULES``
+list in ``docs/conf.py``. This needs to be the actual name of the imported
+>>>>>>> 317d96b1769377b72465d8f3527fea5c55fc99bb
 module, so for example if you have ``from somepkg.mod import AClass``,
 you need to add ``somepkg.mod`` to the list.

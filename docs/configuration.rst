@@ -1,17 +1,15 @@
 Configuration
 =============
 
-The config file is just a normal Python script.
+The configuration file is a normal Python script. The status bar is controlled by a central
+:py:class:`.Status` object, which individual *modules* like a :py:mod:`.clock` or a :py:mod:`.battery`
+monitor are added to with the ``register`` method.
 
-A simple configuration file could look like this (note the additional
-dependencies from :py:mod:`.network`, :py:mod:`.wireless` and :py:mod:`.pulseaudio` in this
+A typical configuration file could look like this (note the additional
+dependencies from :py:mod:`.network` and :py:mod:`.pulseaudio` in this
 example):
 
-::
-
-    # -*- coding: utf-8 -*-
-
-    import subprocess
+.. code:: python
 
     from i3pystatus import Status
 
@@ -38,8 +36,10 @@ example):
     # And like this if full:
     # =14.22W 100.0% [91.21%]
     #
-    # This would also display a desktop notification (via dbus) if the percentage
+    # This would also display a desktop notification (via D-Bus) if the percentage
     # goes below 5 percent while discharging. The block will also color RED.
+    # If you don't have a desktop notification demon yet, take a look at dunst:
+    #   http://www.knopwob.org/dunst/
     status.register("battery",
         format="{status}/{consumption:.2f}W {percentage:.2f}% [{percentage_design:.2f}%] {remaining:%E%hh:%Mm}",
         alert=True,
@@ -78,11 +78,8 @@ example):
         interface="eth0",
         format_up="{v4cidr}",)
 
-    # Has all the options of the normal network and adds some wireless specific things
-    # like quality and network names.
-    #
-    # Note: requires both netifaces and basiciw
-    status.register("wireless",
+    # Note: requires both netifaces and basiciw (for essid and quality)
+    status.register("network",
         interface="wlan0",
         format_up="{essid} {quality:03.0f}%",)
 
@@ -114,7 +111,7 @@ example):
 
 Also change your i3wm config to the following:
 
-::
+.. code:: ini
 
     # i3bar
     bar {
@@ -123,22 +120,25 @@ Also change your i3wm config to the following:
         workspace_buttons yes
     }
 
+.. note::
+    Don't name your config file ``i3pystatus.py``
+
 Settings that require credentials can utilize the keyring module to keep sensitive information out of config files.
 To take advantage of this feature, simply use the setting_util.py script to set the credentials for a module. Once this
 is done you can add the module to your config without specifying the credentials, eg:
 
-::
+.. code:: python
 
-    # Use the default keyring to retrieve credentials. To determine which backend is the default on your system, run
+    # Use the default keyring to retrieve credentials.
+    # To determine which backend is the default on your system, run
     # python -c 'import keyring; print(keyring.get_keyring())'
     status.register('github')
 
 If you don't want to use the default you can set a specific keyring like so:
 
-::
+.. code:: python
 
     from keyring.backends.file import PlaintextKeyring
     status.register('github', keyring_backend=PlaintextKeyring())
-
 
 i3pystatus will locate and set the credentials during the module loading process. Currently supported credentals are "password", "email" and "username".
