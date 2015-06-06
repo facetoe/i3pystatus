@@ -27,6 +27,7 @@ class Github(IntervalModule):
     keyring_backend = None
 
     on_leftclick = 'open_github'
+    on_rightclick = 'run'
 
     settings = (
         ('format', 'format string'),
