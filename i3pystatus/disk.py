@@ -7,10 +7,17 @@ from .core.util import round_dict
 
 class Disk(IntervalModule):
     """
-    Gets ``{used}``, ``{free}``, ``{avail}`` and ``{total}`` amount of bytes on the given mounted filesystem.
+    Obtains usage statistics from the given mounted filesystem.
 
-    These values can also be expressed as percentages with the ``{percentage_used}``, ``{percentage_free}``
-    and ``{percentage_avail}`` formats.
+     .. rubric:: Available formatters
+
+     * `{used}`  — used space (unit determined by divisor)
+     * `{free}`  — free space (unit determined by divisor)
+     * `{avail}` — avail space (unit determined by divisor)
+     * `{total}` — total space (unit determined by divisor)
+     * `{percentage_used}`  — percentage used
+     * `{percentage_free}`  — percentage free
+     * `{percentage_avail}`  — percentage avail
     """
 
     settings = (
@@ -22,7 +29,7 @@ class Disk(IntervalModule):
         ("critical_color", "the critical color"),
         ("critical_metric",
          "the metric used for calculating the critical limit. Available metrics are "
-         "used, free, avail, percentage_free, percentage_avail, percentage_used."),
+         "used, free, avail, percentage_free, percentage_avail and percentage_used."),
         ("color", "the common color"),
         ("round_size", "precision, None for INT"),
         ("mounted_only", "display only if path is a valid mountpoint"),
