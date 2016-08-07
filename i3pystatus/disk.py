@@ -1,6 +1,7 @@
 import os
 
 from i3pystatus import IntervalModule
+
 from .core.util import round_dict
 
 
@@ -19,6 +20,9 @@ class Disk(IntervalModule):
         ("display_limit", "if more space is available than this limit the module is hidden"),
         ("critical_limit", "critical space limit (see critical_color)"),
         ("critical_color", "the critical color"),
+        ("critical_metric",
+         "the metric used for calculating the critical limit. Available metrics are "
+         "used, free, avail, percentage_free, percentage_avail, percentage_used."),
         ("color", "the common color"),
         ("round_size", "precision, None for INT"),
         ("mounted_only", "display only if path is a valid mountpoint"),
@@ -29,6 +33,7 @@ class Disk(IntervalModule):
     color = "#FFFFFF"
     color_not_mounted = "#FFFFFF"
     critical_color = "#FF0000"
+    critical_metric = 'avail'
     format = "{free}/{avail}"
     format_not_mounted = None
     divisor = 1024 ** 3
@@ -64,8 +69,6 @@ class Disk(IntervalModule):
             self.output = {}
             return
 
-        critical = available < self.critical_limit
-
         cdict = {
             "total": (stat.f_bsize * stat.f_blocks) / self.divisor,
             "free": (stat.f_bsize * stat.f_bfree) / self.divisor,
@@ -75,6 +78,12 @@ class Disk(IntervalModule):
             "percentage_avail": stat.f_bavail / stat.f_blocks * 100,
             "percentage_used": (stat.f_blocks - stat.f_bfree) / stat.f_blocks * 100,
         }
+
+        if self.critical_metric not in cdict:
+            raise Exception("{} is not a valid critical_metric. Available metrics: {}"
+                            .format(self.critical_metric, list(cdict.keys())))
+        critical = cdict[self.critical_metric] < self.critical_limit
+
         round_dict(cdict, self.round_size)
 
         self.data = cdict
