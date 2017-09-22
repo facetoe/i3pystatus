@@ -1,9 +1,18 @@
+import logging
+import sys
 import threading
 import time
-import sys
+
 from i3pystatus.core.util import partition
 
 timer = time.perf_counter if hasattr(time, "perf_counter") else time.clock
+
+log = logging.getLogger(__name__)
+hdlr = logging.FileHandler('/tmp/test_log.log')
+formatter = logging.Formatter('%(name)s %(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(logging.DEBUG)
 
 
 def unwrap_workload(workload):
@@ -73,9 +82,11 @@ class Thread(threading.Thread):
 
     def suspend(self):
         self._suspended.set()
+        log.debug("{} suspended".format(self.name))
 
     def resume(self):
         self._suspended.clear()
+        log.debug("{} resumed".format(self.name))
 
 
 class Wrapper:
@@ -170,8 +181,10 @@ class Manager:
 
     def suspend(self):
         for thread in self.threads:
+            log.debug("Suspending thread: {}".format(thread.name))
             thread.suspend()
 
     def resume(self):
         for thread in self.threads:
+            log.debug("Resuming thread: {}".format(thread.name))
             thread.resume()

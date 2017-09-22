@@ -1,11 +1,19 @@
 import json
+import logging
 import signal
 import sys
-
 from contextlib import contextmanager
 from threading import Condition
 from threading import Thread
+
 from i3pystatus.core.modules import IntervalModule
+
+log = logging.getLogger(__name__)
+hdlr = logging.FileHandler('/tmp/test_log.log')
+formatter = logging.Formatter('%(name)s %(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(logging.DEBUG)
 
 
 class IOHandler:
@@ -81,7 +89,9 @@ class StandaloneIO(IOHandler):
         self.treshold_interval = 20.0
 
         self.stopped = False
+        log.debug("Setting refresh signal handler")
         signal.signal(signal.SIGUSR1, self.refresh_signal_handler)
+        log.debug("Setting suspend signal handler")
         signal.signal(signal.SIGUSR2, self.suspend_signal_handler)
 
     def read(self):
@@ -137,6 +147,7 @@ class StandaloneIO(IOHandler):
         This also prevents possible lag when updating all modules in a row.
         """
 
+        log.debug("refresh start: {}".format(signo))
         if signo != signal.SIGUSR1:
             return
 
@@ -151,6 +162,7 @@ class StandaloneIO(IOHandler):
                 module.run()
 
         self.async_refresh()
+        log.debug("refresh end: {}".format(signo))
 
     def suspend_signal_handler(self, signo, frame):
         """
@@ -164,13 +176,22 @@ class StandaloneIO(IOHandler):
         that they should suspend any module that does not set the keep_alive flag to a truthy value, and when we
         have been continued, notify the IntervalModule managers that they can resume execution of all modules.
         """
+
+        log.debug("suspend start: {}".format(signo))
         if signo != signal.SIGUSR2:
             return
         self.stopped = not self.stopped
+        log.debug("Stopped: {}".format(self.stopped))
+
         if self.stopped:
-            [m.suspend() for m in IntervalModule.managers.values()]
+            for m in IntervalModule.managers.values():
+                log.debug("Suspending manager: {}".format(id(m)))
+                m.suspend()
         else:
-            [m.resume() for m in IntervalModule.managers.values()]
+            for m in IntervalModule.managers.values():
+                log.debug("Resuming manager: {}".format(id(m)))
+                m.resume()
+        log.debug("suspend end: {}".format(signo))
 
 
 class JSONIO:
